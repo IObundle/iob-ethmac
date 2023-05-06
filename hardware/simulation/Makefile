@@ -2,18 +2,31 @@ ETH_DIR:=../..
 
 include ../hardware.mk
 
-ETHOC_SIM=$(ETHOC_DIR)/scripts
-ETHOC_SRC=$(ETHOC_DIR)/rtl/verilog
-ETHOC_SIM_SRC=$(ETHOC_DIR)/bench/verilog
+ifeq ($(VCD), 1)
+ICARUS_OPTIONS += -DVCD
+endif
 
-run: ethoc logs
+ETHOC_SIM_DIR=$(ETHOC_DIR)/scripts
+ETHOC_SRC_DIR=$(ETHOC_DIR)/rtl/verilog
+ETHOC_SIM_SRC_DIR=$(ETHOC_DIR)/bench/verilog
 
-ethoc:
-	cp $(ETH_SRC_DIR)/*.v $(ETHOC_SRC)
-	cp $(ETH_SIM_DIR)/*.v $(ETHOC_SIM_SRC)
-	$(MAKE) -C $(ETHOC_SIM)
+export
 
-logs:
-	cp -r $(ETHOC_DIR)/log .
+build:
+	echo $(ETHOC_DIR)
+	mkdir -p ../build/sim && mkdir -p ../log
+	cp ../src/* .
+	cp $(ETHOC_SRC_DIR)/* .
+	cp $(ETHOC_SIM_SRC_DIR)/* .
+	cp src/* .
+	sleep 1 && sync && rm tb_eth_top.v && iverilog -stb_ethernet *.v $(ICARUS_OPTIONS) -o ../build/sim/ethmac.elf
+
+
+run: build
+	vvp ../build/sim/ethmac.elf
 
 clean:
+	rm -rf ../build/sim ../log *.v *.vh BUGS TODO
+
+
+.PHONY: build run clean
