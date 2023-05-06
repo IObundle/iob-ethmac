@@ -5,6 +5,7 @@ include ./config.mk
 #
 # SIMULATE RTL
 #
+
 sim-run:
 	$(MAKE) -C $(ETH_SIM_DIR) run
 

@@ -459,11 +459,11 @@ end
 initial
 begin
   wb_clk=0;
-//  forever #2.5 wb_clk = ~wb_clk;  // 2*2.5 ns -> 200.0 MHz    
+  forever #2.5 wb_clk = ~wb_clk;  // 2*2.5 ns -> 200.0 MHz    
 //  forever #5 wb_clk = ~wb_clk;  // 2*5 ns -> 100.0 MHz    
 //  forever #10 wb_clk = ~wb_clk;  // 2*10 ns -> 50.0 MHz    
 //  forever #12.5 wb_clk = ~wb_clk;  // 2*12.5 ns -> 40 MHz    
-  forever #15 wb_clk = ~wb_clk;  // 2*10 ns -> 33.3 MHz    
+//  forever #15 wb_clk = ~wb_clk;  // 2*10 ns -> 33.3 MHz    
 //  forever #20 wb_clk = ~wb_clk;  // 2*20 ns -> 25 MHz    
 //  forever #25 wb_clk = ~wb_clk;  // 2*25 ns -> 20.0 MHz
 //  forever #31.25 wb_clk = ~wb_clk;  // 2*31.25 ns -> 16.0 MHz    
@@ -3465,6 +3465,7 @@ begin
             if (cnt != 33) // at this value Mdio_IO is HIGH Z
             begin
               test_fail("Second scan request did not proceed correctly");
+              $display("%d %d cnt = %d (33)", i2, i, cnt);
               fail = fail + 1;
             end
           end
@@ -3473,6 +3474,7 @@ begin
             if (cnt != 65) // at this value Mdio_IO is HIGH Z
             begin
               test_fail("Second scan request did not proceed correctly");
+              $display("%d %d cnt = %d (65)", i2, i, cnt);
               fail = fail + 1;
             end
           end
