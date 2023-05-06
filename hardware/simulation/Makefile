@@ -10,19 +10,23 @@ ETHOC_SIM_DIR=$(ETHOC_DIR)/scripts
 ETHOC_SRC_DIR=$(ETHOC_DIR)/rtl/verilog
 ETHOC_SIM_SRC_DIR=$(ETHOC_DIR)/bench/verilog
 
-export
+all:build
 
-build:
+build: ../build/sim/ethmac.elf
+
+../build/sim/ethmac.elf:
 	echo $(ETHOC_DIR)
 	mkdir -p ../build/sim && mkdir -p ../log
 	cp ../src/* .
+	cp src/* .
 	cp $(ETHOC_SRC_DIR)/* .
 	cp $(ETHOC_SIM_SRC_DIR)/* .
+ifneq ($(DEBUG),)
 	cp src/* .
+endif
 	sleep 1 && sync && rm tb_eth_top.v && iverilog -stb_ethernet *.v $(ICARUS_OPTIONS) -o ../build/sim/ethmac.elf
 
-
-run: build
+run: ../build/sim/ethmac.elf
 	vvp ../build/sim/ethmac.elf
 
 clean:
