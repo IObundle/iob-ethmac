@@ -33,13 +33,13 @@ module iob_wishbone2iob #
    );
 
   assign valid_o = wb_cyc_i & wb_stb_i & ~ready_i;
-  assign addr_o  = wb_adr_i;
-  assign wdata_o = wb_dat_i;
-  assign wstrb_o = wb_we_i? wb_sel_i: {DATA_W/8{1'b0}};
+  assign addr_o  = ( wb_cyc_i & wb_stb_i)? wb_adr_i: {ADDR_W{1'b0}};
+  assign wdata_o = ( wb_cyc_i & wb_stb_i)? wb_dat_i: {DATA_W{1'b0}};
+  assign wstrb_o = ( wb_cyc_i & wb_stb_i & wb_we_i)? wb_sel_i: {DATA_W/8{1'b0}};
   assign sel_o   = wb_sel_i;
 
   assign wb_dat_o = rdata_i;
   assign wb_ack_o = ready_i;
-  assign wb_err_o = 1'b0;
+  assign wb_err_o = err_i;
   
 endmodule

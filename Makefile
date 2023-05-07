@@ -6,14 +6,17 @@ include ./config.mk
 # SIMULATE RTL
 #
 
+sim-build:
+	$(MAKE) -C $(ETH_SIM_DIR) build
+
 sim-run:
 	$(MAKE) -C $(ETH_SIM_DIR) run
 
 sim-clean:
 	make -C $(ETH_SIM_DIR) clean
 
-vcd:
-	gtkwave $(ETHOC_DIR)/build/sim/ethmac.vcd &
+sim-waves:
+	gtkwave hardware/build/sim/*.vcd &
 
 logs:
 	cat $(ETHOC_DIR)/log/eth_tb.log 

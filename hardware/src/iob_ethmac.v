@@ -67,6 +67,7 @@ module iob_ethmac #
   wire                     wb_ack;
   wire                     wb_err;
 
+`ifdef USE_IOB_C_INTERFACE
   // IOB to Wishbone bridge (control)
   iob_iob2wishbone #
     (
@@ -97,7 +98,8 @@ module iob_ethmac #
      .wb_dat_i(wb_rdata),
      .wb_err_i(wb_err)
   );
-
+`endif //  `ifdef USE_IOB_C_INTERFACE
+   
   wire [DATA_W-1:0]        d_wb_rdata;
   wire                     d_wb_ack;
   wire                     d_wb_err;
@@ -176,6 +178,7 @@ module iob_ethmac #
 
      );
 
+`ifdef USE_IOB_D_INTERFACE
   iob_wishbone2iob #
     (
      .ADDR_W(MEM_ADDR_W), 
@@ -204,5 +207,6 @@ module iob_ethmac #
      .sel_o(d_sel_o),
      .err_i(d_err_i)
   );
-
+`endif //  `ifdef USE_IOB_D_INTERFACE
+   
 endmodule

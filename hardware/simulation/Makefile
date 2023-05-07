@@ -6,6 +6,15 @@ ifeq ($(VCD), 1)
 ICARUS_OPTIONS += -DVCD
 endif
 
+ifeq ($(C), 1)
+ICARUS_OPTIONS += -DUSE_IOB_C_INTERFACE
+endif
+
+ifeq ($(D), 1)
+ICARUS_OPTIONS += -DUSE_IOB_D_INTERFACE
+endif
+
+
 ETHOC_SIM_DIR=$(ETHOC_DIR)/scripts
 ETHOC_SRC_DIR=$(ETHOC_DIR)/rtl/verilog
 ETHOC_SIM_SRC_DIR=$(ETHOC_DIR)/bench/verilog
@@ -17,11 +26,10 @@ build: ../build/sim/ethmac.elf
 ../build/sim/ethmac.elf:
 	echo $(ETHOC_DIR)
 	mkdir -p ../build/sim && mkdir -p ../log
-	cp ../src/* .
-	cp src/* .
 	cp $(ETHOC_SRC_DIR)/* .
 	cp $(ETHOC_SIM_SRC_DIR)/* .
 ifneq ($(DEBUG),)
+	cp ../src/* .
 	cp src/* .
 endif
 	sleep 1 && sync && rm tb_eth_top.v && iverilog -stb_ethernet *.v $(ICARUS_OPTIONS) -o ../build/sim/ethmac.elf

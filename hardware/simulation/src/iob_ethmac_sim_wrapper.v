@@ -1,5 +1,6 @@
 `include "timescale.v"
 
+
 module iob_ethmac_sim_wrapper 
   #(
     parameter MEM_ADDR_W = 32,
@@ -77,6 +78,7 @@ module iob_ethmac_sim_wrapper
   wire                                 c_err;
   wire [DATA_W/8-1:0]                  c_sel;
 
+`ifdef USE_IOB_C_INTERFACE
   // IOb control interface
   iob_wishbone2iob #
     (
@@ -86,7 +88,6 @@ module iob_ethmac_sim_wrapper
     (
      .clk_i(wb_clk_i), 
      .arst_i(wb_rst_i),
-    
      .wb_adr_i({wb_adr_i, 2'b00}),
      .wb_sel_i(wb_sel_i),
      .wb_we_i(wb_we_i),
@@ -106,7 +107,19 @@ module iob_ethmac_sim_wrapper
      .err_i(c_err),
      .sel_o(c_sel)
      );
+`else
+   assign eth_0.wb_cyc = wb_cyc_i;
+   assign eth_0.wb_stb = wb_stb_i;
+   assign eth_0.wb_we  = wb_we_i;
+   assign eth_0.wb_sel = wb_sel_i;
+   assign eth_0.wb_adr = {wb_adr_i, 2'b00};
+   assign eth_0.wb_wdata = wb_dat_i;
+   assign wb_dat_o = eth_0.wb_rdata;
+   assign wb_ack_o = eth_0.wb_ack;
+   assign wb_err_o = eth_0.wb_err;
+`endif //  `ifndef USE_IOB_C_INTERFACE
 
+     
   // IOb data interface
   wire                                 d_valid;
   wire [MEM_ADDR_W-1:0]                d_addr;
@@ -130,7 +143,8 @@ module iob_ethmac_sim_wrapper
     (
      .clk_i(wb_clk_i),
      .arst_i(wb_rst_i),
-    
+
+`ifdef USE_IOB_C_INTERFACE
      .c_valid_i(c_valid),
      .c_addr_i(c_addr),
      .c_wdata_i(c_wdata),
@@ -139,8 +153,10 @@ module iob_ethmac_sim_wrapper
      .c_ready_o(c_ready),
      .c_sel_i(c_sel),
      .c_err_o(c_err),
-    
-     .d_valid_o(d_valid),
+`endif
+     
+`ifdef USE_IOB_D_INTERFACE
+    .d_valid_o(d_valid),
      .d_addr_o(d_addr),
      .d_wdata_o(d_wdata),
      .d_wstrb_o(d_wstrb),
@@ -148,7 +164,7 @@ module iob_ethmac_sim_wrapper
      .d_ready_i(d_ready),
      .d_sel_o(d_sel),
      .d_err_i(d_err),
-    
+`endif
      .mii_rx_clk_i(mrx_clk_pad_i),
      .mii_rxd_i(mrxd_pad_i),
      .mii_rx_dv_i(mrxdv_pad_i),
@@ -168,7 +184,9 @@ module iob_ethmac_sim_wrapper
      );
 
 
-  iob_iob2wishbone 
+
+`ifdef USE_IOB_D_INTERFACE
+ iob_iob2wishbone 
     #(
       .ADDR_W(MEM_ADDR_W), 
       .DATA_W(DATA_W)
@@ -177,7 +195,7 @@ module iob_ethmac_sim_wrapper
     (
      .clk_i(wb_clk_i), 
      .arst_i(wb_rst_i),
-    
+     
      .valid_i(d_valid),
      .addr_i(d_addr),
      .wdata_i(d_wdata),
@@ -197,5 +215,16 @@ module iob_ethmac_sim_wrapper
      .wb_ack_i(m_wb_ack_i),
      .wb_err_i(m_wb_err_i)
      );
-
+`else
+   assign m_wb_cyc_o = eth_0.d_wb_cyc;
+   assign m_wb_stb_o = eth_0.d_wb_stb;
+   assign m_wb_we_o  = eth_0.d_wb_we;
+   assign m_wb_sel_o = eth_0.d_wb_sel;
+   assign m_wb_adr_o = eth_0.d_wb_adr;
+   assign m_wb_dat_o = eth_0.d_wb_wdata;
+   assign eth_0.d_wb_rdata = m_wb_dat_i;
+   assign eth_0.d_wb_ack = m_wb_ack_i;
+   assign eth_0.d_wb_err = m_wb_err_i;
+`endif
+    
 endmodule

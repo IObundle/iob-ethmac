@@ -33,33 +33,60 @@ module iob_iob2wishbone #
    input                 wb_err_i
    );
     
-  assign wb_adr_o = addr_i;
-  assign wb_dat_o = wdata_i;
-  assign wb_sel_o = sel_i;
-  assign wb_we_o = |wstrb_i;
-  assign wb_cyc_o = valid_i;
-  assign wb_stb_o = valid_i;
+   assign wb_stb_o = wb_cyc_o;  
 
-  assign err_o = wb_err_i;
-  
-  iob_reg #(1,0) iob_reg_wb_ack 
-    (
-     .clk(clk_i), 
-     .arst(arst_i),
-     .rst(1'b0), 
-     .en(1'b1),
-     .data_in(wb_ack_i), 
-     .data_out(ready_o)
-     );
+   iob_reg #(1,0) iob_reg_valid
+     (
+      .clk(clk_i), 
+      .arst(arst_i),
+      .rst(1'b0), 
+      .en(1'b1),
+      .data_in(valid_i),
+      .data_out(wb_cyc_o)
+      );
 
-  iob_reg #(DATA_W,0) iob_reg_wb_data
-    (
-     .clk(clk_i), 
-     .arst(arst_i),
-     .rst(1'b0), 
-     .en(1'b1),
-     .data_in(wb_dat_i), 
-     .data_out(rdata_o)
-     );
-  
+   iob_reg #(ADDR_W,0) iob_reg_addr
+     (
+      .clk(clk_i), 
+      .arst(arst_i),
+      .rst(1'b0), 
+      .en(1'b1),
+      .data_in(addr_i),
+      .data_out(wb_adr_o)
+      );
+
+   iob_reg #(DATA_W,0) iob_reg_wdata
+     (
+      .clk(clk_i), 
+      .arst(arst_i),
+      .rst(1'b0), 
+      .en(1'b1),
+      .data_in(wdata_i),
+      .data_out(wb_dat_o)
+      );
+
+   iob_reg #(DATA_W/8,0) iob_reg_sel
+     (
+      .clk(clk_i), 
+      .arst(arst_i),
+      .rst(1'b0), 
+      .en(1'b1),
+      .data_in(sel_i),
+      .data_out(wb_sel_o)
+      );
+
+   iob_reg #(1,0) iob_reg_we
+       (
+         .clk(clk_i), 
+         .arst(arst_i),
+         .rst(1'b0), 
+         .en(1'b1),
+         .data_in(|wstrb_i),
+         .data_out(wb_we_o)
+         );
+   
+   assign ready_o = wb_ack_i;
+   assign rdata_o = wb_dat_i;
+   assign err_o = wb_err_i;
+
 endmodule
